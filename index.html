@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bodger</title>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: oklch(40% 0.18 240);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    }
+    #root {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 100vh;
+    }
+    .def-block {
+      color: rgba(255,255,255,0.92);
+      max-width: 340px;
+    }
+    .def-headword {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #fff;
+      font-family: 'Georgia', serif;
+    }
+    .def-pron {
+      font-size: 14px;
+      color: rgba(255,255,255,0.55);
+      font-family: 'Georgia', serif;
+      font-style: italic;
+      margin-left: 6px;
+    }
+    .def-pos {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 2px;
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    }
+    .def-text {
+      font-size: 19px;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.75);
+      font-family: 'Georgia', serif;
+      margin-top: 6px;
+      text-wrap: pretty;
+    }
+    .def-num {
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      margin-right: 4px;
+    }
+    .def-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    function CursorIcon() {
+      return (
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"
+          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }}>
+          <path d="M5 2L23 13.5L13.5 15.5L9 24L5 2Z" fill="white" stroke="#222" strokeWidth="1.2" strokeLinejoin="round"/>
+        </svg>
+      );
+    }
+
+    function AppScreen() {
+      const fullText = "i hate you so much. u suck.";
+      const [displayed, setDisplayed] = React.useState("");
+      const [showCursor, setShowCursor] = React.useState(false);
+      const [cursorIn, setCursorIn] = React.useState(false);
+      const [clicking, setClicking] = React.useState(false);
+      const [working, setWorking] = React.useState(false);
+      const [showResult, setShowResult] = React.useState(false);
+      const [scrolled, setScrolled] = React.useState(false);
+      const scrollRef = React.useRef(null);
+
+      React.useEffect(() => {
+        let i = 0;
+        let loopTimeout;
+
+        function startLoop() {
+          i = 0;
+          setDisplayed("");
+          setShowCursor(false);
+          setCursorIn(false);
+          setClicking(false);
+          setWorking(false);
+          setShowResult(false);
+          setScrolled(false);
+          if (scrollRef.current) scrollRef.current.scrollTop = 0;
+
+          const typeInterval = setInterval(() => {
+            i++;
+            setDisplayed(fullText.slice(0, i));
+            if (i >= fullText.length) {
+              clearInterval(typeInterval);
+              setTimeout(() => {
+                setShowCursor(true);
+                setTimeout(() => setCursorIn(true), 100);
+                // hover pause, then click
+                setTimeout(() => {
+                  setClicking(true);
+                  setTimeout(() => {
+                    setClicking(false);
+                    setWorking(true);
+                    setTimeout(() => {
+                      setShowResult(true);
+                      // scroll down after result appears
+                      setTimeout(() => {
+                        setScrolled(true);
+                        if (scrollRef.current) {
+                          scrollRef.current.scrollTo({ top: 320, behavior: 'smooth' });
+                        }
+                        // hold, then restart
+                        loopTimeout = setTimeout(() => startLoop(), 6000);
+                      }, 800);
+                    }, 1200);
+                  }, 300);
+                }, 1400);
+              }, 600);
+            }
+          }, 60);
+        }
+
+        startLoop();
+        return () => { clearTimeout(loopTimeout); };
+      }, []);
+
+      return (
+        <div style={{
+          width: '100%',
+          height: '100%',
+          background: '#fff',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
+          position: 'relative',
+        }} ref={scrollRef}>
+          {/* Header */}
+          <div style={{ padding: '16px 20px 8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, color: '#D4551A' }}>bodger</span>
+                <span style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  fontSize: 12, color: '#555', fontWeight: 400
+                }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4CAF50', display: 'inline-block' }}></span>
+                  AI active
+                </span>
+              </div>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.8">
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </div>
+            <p style={{ fontSize: 13, color: '#999', fontStyle: 'italic', marginTop: 4 }}>
+              Soften reactive messages before you send them
+            </p>
+          </div>
+
+          {/* Tabs */}
+          <div style={{ padding: '0 20px 16px' }}>
+            <div style={{
+              display: 'flex', background: '#f2f2f7', borderRadius: 12, padding: 3
+            }}>
+              <div style={{
+                flex: 1, textAlign: 'center', padding: '8px 0', borderRadius: 10,
+                background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+                fontSize: 14, fontWeight: 600,
+                border: '1.5px solid #E8845A'
+              }}>My message</div>
+              <div style={{
+                flex: 1, textAlign: 'center', padding: '8px 0',
+                fontSize: 14, fontWeight: 400, color: '#888'
+              }}>Their message</div>
+            </div>
+          </div>
+
+          {/* Input area */}
+          <div style={{ padding: '0 20px 12px' }}>
+            <p style={{ fontSize: 14, color: '#aaa', marginBottom: 8 }}>What were you about to send?</p>
+            <div style={{
+              background: '#f2f2f7', borderRadius: 14, padding: '14px 14px 32px',
+              position: 'relative', minHeight: 90
+            }}>
+              <p style={{ fontSize: 18, fontWeight: 500, color: '#1a1a1a', lineHeight: 1.4, minHeight: 52 }}>
+                {displayed}<span style={{ opacity: displayed.length < fullText.length ? 1 : 0, borderRight: '2px solid #1a1a1a', marginLeft: 1, transition: 'opacity 0.2s' }}>&nbsp;</span>
+              </p>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.8"
+                style={{ position: 'absolute', bottom: 10, right: 12 }}>
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+            </div>
+          </div>
+
+          {/* Soften button — with cursor overlay */}
+          <div style={{ padding: '0 20px 16px', position: 'relative' }}>
+            <div style={{
+              background: working ? 'linear-gradient(135deg, #c88a1a 0%, #a83d12 100%)' : 'linear-gradient(135deg, #F5A623 0%, #D4551A 100%)',
+              borderRadius: 14, padding: '16px', textAlign: 'center',
+              color: '#fff', fontSize: 18, fontWeight: 600,
+              letterSpacing: 0.2,
+              transform: clicking ? 'scale(0.96)' : 'scale(1)',
+              transition: 'transform 0.15s ease, background 0.3s ease',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>
+              {working ? (
+                <>
+                  <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                  Working…
+                </>
+              ) : 'Soften'}
+            </div>
+            {/* Cursor hovering over button */}
+            {showCursor && (
+              <div style={{
+                position: 'absolute',
+                bottom: 22,
+                right: 52,
+                pointerEvents: 'none',
+                opacity: cursorIn ? 1 : 0,
+                transform: cursorIn ? 'translate(0, 0)' : 'translate(30px, 20px)',
+                transition: 'opacity 0.4s ease, transform 0.5s ease',
+                animation: cursorIn ? 'cursorBob 2.4s ease-in-out infinite' : 'none',
+              }}>
+                <CursorIcon />
+              </div>
+            )}
+          </div>
+
+          {/* Result card */}
+          <div style={{ padding: '0 20px 16px', opacity: showResult ? 1 : 0, transform: showResult ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.5s ease, transform 0.5s ease' }}>
+            <div style={{
+              background: '#f2f2f7', borderRadius: 14, padding: '14px 14px 14px',
+              position: 'relative'
+            }}>
+              {/* Send actions */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #F5A623 0%, #D4551A 100%)',
+                  borderRadius: 12, padding: '13px', textAlign: 'center',
+                  color: '#fff', fontSize: 15, fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  marginBottom: 8
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                  Send in Messages
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{
+                    flex: 1, background: '#ede8e3', borderRadius: 12, padding: '11px',
+                    textAlign: 'center', fontSize: 14, fontWeight: 500, color: '#c0522a',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0522a" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy
+                  </div>
+                  <div style={{
+                    flex: 1, background: 'transparent', borderRadius: 12, padding: '11px',
+                    textAlign: 'center', fontSize: 14, color: '#888',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.86"/></svg>
+                    Try another
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center', fontSize: 13, color: '#bbb', marginTop: 6 }}>Start over</div>
+              </div>
+
+              {/* Softened message */}
+              <p style={{ fontSize: 15, color: '#1a1a1a', lineHeight: 1.55, paddingRight: 20 }}>
+                I'm starting to feel a bit too flooded to have a constructive conversation. Can we pause for 20 minutes and then try to pick up the conversation again?
+              </p>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.8"
+                style={{ position: 'absolute', bottom: 10, right: 12 }}>
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+              <div style={{
+                background: '#1E3A6E', borderRadius: 12, padding: '12px',
+                textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 600,
+                marginTop: 12
+              }}>
+                Request a pause
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <p style={{ fontSize: 12, color: '#aaa', marginBottom: 6 }}>Set a reminder</p>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  {['20 min', '30 min', '45 min', '60 min'].map((t, i) => (
+                    <div key={t} style={{
+                      padding: '5px 10px', borderRadius: 20, fontSize: 12,
+                      background: i === 0 ? '#d0d8ec' : '#f2f2f7',
+                      color: i === 0 ? '#1E3A6E' : '#888',
+                      fontWeight: i === 0 ? 600 : 400
+                    }}>{t}</div>
+                  ))}
+                </div>
+                <div style={{
+                  background: '#e8ecf5', borderRadius: 12, padding: '11px',
+                  textAlign: 'center', fontSize: 14, color: '#1E3A6E', fontWeight: 500,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                }}>
+                  <span>🔔</span> Remind me in 20 min
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Save text history */}
+          <div style={{
+            margin: '0 20px 24px',
+            background: '#f2f2f7', borderRadius: 14, padding: '14px 16px',
+            opacity: showResult ? 1 : 0, transition: 'opacity 0.5s ease 0.2s'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>Save text history for analysis</p>
+                <p style={{ fontSize: 12, color: '#aaa', lineHeight: 1.4 }}>Privately logs messages you process — only stored on this device.</p>
+              </div>
+              <div style={{
+                width: 44, height: 26, borderRadius: 13,
+                background: '#ddd', flexShrink: 0, marginTop: 2,
+                position: 'relative'
+              }}>
+                <div style={{
+                  position: 'absolute', top: 3, left: 3,
+                  width: 20, height: 20, borderRadius: '50%',
+                  background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 64, padding: '40px 48px', flexWrap: 'wrap', marginLeft: '-60px' }}>
+
+          {/* Definitions */}
+          <div className="def-block">
+            {/* Entry 2 */}
+            <div>
+              <span className="def-headword" style={{ color: '#E8742E' }}>bodg·er</span>
+              <span className="def-pron">/ ˈbɒdʒ ər /</span>
+              <div className="def-pos">noun</div>
+              <p className="def-text" style={{ marginTop: 10 }}>
+                A digital interface or software application designed to intercept and reframe "fexting" (text-based conflict) into constructive dialogue, or "connects-ting."
+              </p>
+              <div style={{ marginTop: 20 }}>
+                <div className="def-pos" style={{ marginBottom: 6 }}>Etymology</div>
+                <p className="def-text" style={{ color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', fontSize: 15, lineHeight: 1.55 }}>
+                  Derived from the archaic British term <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.75)' }}>bodger</em>—a highly skilled itinerant woodworker who turned unseasoned timber into functional chair legs using a pole lathe. In a modern context, the name suggests the "turning" of raw, "green" (reactive) emotion into a structured, supportive framework.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* iPhone with app */}
+          {/* Outer phone bezel */}
+          <div style={{
+            position: 'relative',
+            background: 'linear-gradient(160deg, #2a2a2a 0%, #111 50%, #1e1e1e 100%)',
+            borderRadius: 52,
+            padding: 12,
+            boxShadow: `
+              0 0 0 1px #444,
+              0 0 0 2px #1a1a1a,
+              0 50px 100px rgba(0,0,0,0.5),
+              0 20px 40px rgba(0,0,0,0.3),
+              inset 0 1px 0 rgba(255,255,255,0.08)
+            `,
+          }}>
+            {/* Side buttons */}
+            <div style={{ position: 'absolute', left: -3, top: 100, width: 3, height: 36, background: '#333', borderRadius: '2px 0 0 2px' }} />
+            <div style={{ position: 'absolute', left: -3, top: 150, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
+            <div style={{ position: 'absolute', left: -3, top: 220, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
+            <div style={{ position: 'absolute', right: -3, top: 160, width: 3, height: 80, background: '#333', borderRadius: '0 2px 2px 0' }} />
+            <IOSDevice width={296} height={641} dark={false} title="">
+              <AppScreen />
+            </IOSDevice>
+          </div>
+
+          {/* Placeholder for text below */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 8 }}>
+            <a href="#" style={{
+              background: '#fff',
+              color: '#1a0a00',
+              fontFamily: '-apple-system, "Helvetica Neue", sans-serif',
+              fontSize: 19,
+              fontWeight: 800,
+              padding: '18px 42px',
+              borderRadius: 6,
+              textDecoration: 'none',
+              letterSpacing: 0.5,
+              textTransform: 'uppercase',
+              boxShadow: '4px 4px 0px #D4551A',
+              border: '2px solid #D4551A',
+              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
+            }}
+            onMouseOver={e => { e.currentTarget.style.transform = 'translate(-2px, -2px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #D4551A'; }}
+            onMouseOut={e => { e.currentTarget.style.transform = 'translate(0,0)'; e.currentTarget.style.boxShadow = '4px 4px 0px #D4551A'; }}
+            onMouseDown={e => { e.currentTarget.style.transform = 'translate(4px, 4px)'; e.currentTarget.style.boxShadow = '0px 0px 0px #D4551A'; }}
+            onMouseUp={e => { e.currentTarget.style.transform = 'translate(-2px, -2px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #D4551A'; }}
+            >
+              ⬇ Download the Beta Version
+            </a>
+            <a href="#" style={{
+              color: 'rgba(255,255,255,0.55)',
+              fontFamily: 'Georgia, serif',
+              fontSize: 17,
+              fontStyle: 'normal',
+              textDecoration: 'none',
+              borderBottom: '1px solid rgba(255,255,255,0.25)',
+              paddingBottom: 2,
+            }}>
+              Read our (very serious) privacy policy
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+  <style>
+    @keyframes cursorBob {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-2px, -4px); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</body>
+</html>
