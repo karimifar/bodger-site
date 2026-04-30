@@ -70,8 +70,14 @@
       border-top: 1px solid rgba(255,255,255,0.12);
       margin: 20px 0;
     }
+    @media (max-width: 1100px) {
+      body { align-items: flex-start; }
+      #root { align-items: flex-start; justify-content: flex-start; }
+    }
+    @media (min-width: 641px) and (max-width: 1100px) {
+      .def-block { max-width: 480px; }
+    }
     @media (max-width: 640px) {
-      #root { align-items: flex-start; }
       .def-block { max-width: 100%; text-align: center; }
       .def-pron { display: block; margin-left: 0; margin-top: 2px; }
     }
@@ -360,29 +366,31 @@
       );
     }
 
-    function useIsMobile() {
-      const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 640);
+    function useLayout() {
+      const get = () => window.innerWidth <= 640 ? 'mobile' : window.innerWidth <= 1100 ? 'tablet' : 'desktop';
+      const [layout, setLayout] = React.useState(get);
       React.useEffect(() => {
-        const mq = window.matchMedia('(max-width: 640px)');
-        const handler = e => setIsMobile(e.matches);
-        mq.addEventListener('change', handler);
-        return () => mq.removeEventListener('change', handler);
+        const handler = () => setLayout(get());
+        window.addEventListener('resize', handler);
+        return () => window.removeEventListener('resize', handler);
       }, []);
-      return isMobile;
+      return layout;
     }
 
     function App() {
-      const isMobile = useIsMobile();
+      const layout = useLayout();
+      const isMobile = layout === 'mobile';
+      const isDesktop = layout === 'desktop';
       return (
         <div style={{
           display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
+          flexDirection: isDesktop ? 'row' : 'column',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          gap: isMobile ? 36 : 64,
-          padding: isMobile ? '40px 24px 56px' : '40px 48px',
+          gap: isMobile ? 36 : isDesktop ? 64 : 48,
+          padding: isMobile ? '40px 24px 56px' : isDesktop ? '40px 48px' : '48px 60px 64px',
           flexWrap: 'wrap',
-          marginLeft: isMobile ? 0 : '-60px',
+          marginLeft: isDesktop ? '-60px' : 0,
         }}>
 
           {/* Definitions */}
@@ -421,7 +429,7 @@
             <div style={{ position: 'absolute', left: -3, top: 150, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
             <div style={{ position: 'absolute', left: -3, top: 220, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
             <div style={{ position: 'absolute', right: -3, top: 160, width: 3, height: 80, background: '#333', borderRadius: '0 2px 2px 0' }} />
-            <IOSDevice width={isMobile ? 268 : 296} height={isMobile ? 580 : 641} dark={false} title="">
+            <IOSDevice width={isMobile ? 268 : 296} height={isMobile ? 580 : 641} dark={false} title="" >
               <AppScreen />
             </IOSDevice>
           </div>
@@ -429,7 +437,7 @@
           {/* CTA */}
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 8,
-            width: isMobile ? '100%' : 'auto',
+            width: !isDesktop ? '100%' : 'auto',
           }}>
             <a href="#" style={{
               display: 'block',
