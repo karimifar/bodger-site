@@ -70,6 +70,11 @@
       border-top: 1px solid rgba(255,255,255,0.12);
       margin: 20px 0;
     }
+    @media (max-width: 640px) {
+      #root { align-items: flex-start; }
+      .def-block { max-width: 100%; text-align: center; }
+      .def-pron { display: block; margin-left: 0; margin-top: 2px; }
+    }
   </style>
 </head>
 <body>
@@ -355,13 +360,33 @@
       );
     }
 
+    function useIsMobile() {
+      const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 640);
+      React.useEffect(() => {
+        const mq = window.matchMedia('(max-width: 640px)');
+        const handler = e => setIsMobile(e.matches);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
+      }, []);
+      return isMobile;
+    }
+
     function App() {
+      const isMobile = useIsMobile();
       return (
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 64, padding: '40px 48px', flexWrap: 'wrap', marginLeft: '-60px' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: isMobile ? 36 : 64,
+          padding: isMobile ? '40px 24px 56px' : '40px 48px',
+          flexWrap: 'wrap',
+          marginLeft: isMobile ? 0 : '-60px',
+        }}>
 
           {/* Definitions */}
           <div className="def-block">
-            {/* Entry 2 */}
             <div>
               <span className="def-headword" style={{ color: '#E8742E' }}>bodg·er</span>
               <span className="def-pron">/ ˈbɒdʒ ər /</span>
@@ -375,12 +400,10 @@
                   Derived from the archaic British term <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.75)' }}>bodger</em>—a highly skilled itinerant woodworker who turned unseasoned timber into functional chair legs using a pole lathe. In a modern context, the name suggests the "turning" of raw, "green" (reactive) emotion into a structured, supportive framework.
                 </p>
               </div>
-
             </div>
           </div>
 
           {/* iPhone with app */}
-          {/* Outer phone bezel */}
           <div style={{
             position: 'relative',
             background: 'linear-gradient(160deg, #2a2a2a 0%, #111 50%, #1e1e1e 100%)',
@@ -394,25 +417,28 @@
               inset 0 1px 0 rgba(255,255,255,0.08)
             `,
           }}>
-            {/* Side buttons */}
             <div style={{ position: 'absolute', left: -3, top: 100, width: 3, height: 36, background: '#333', borderRadius: '2px 0 0 2px' }} />
             <div style={{ position: 'absolute', left: -3, top: 150, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
             <div style={{ position: 'absolute', left: -3, top: 220, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
             <div style={{ position: 'absolute', right: -3, top: 160, width: 3, height: 80, background: '#333', borderRadius: '0 2px 2px 0' }} />
-            <IOSDevice width={296} height={641} dark={false} title="">
+            <IOSDevice width={isMobile ? 268 : 296} height={isMobile ? 580 : 641} dark={false} title="">
               <AppScreen />
             </IOSDevice>
           </div>
 
-          {/* Placeholder for text below */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 8 }}>
+          {/* CTA */}
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 8,
+            width: isMobile ? '100%' : 'auto',
+          }}>
             <a href="#" style={{
+              display: 'block',
               background: '#fff',
               color: '#1a0a00',
               fontFamily: '-apple-system, "Helvetica Neue", sans-serif',
-              fontSize: 19,
+              fontSize: isMobile ? 16 : 19,
               fontWeight: 800,
-              padding: '18px 42px',
+              padding: isMobile ? '16px 24px' : '18px 42px',
               borderRadius: 6,
               textDecoration: 'none',
               letterSpacing: 0.5,
@@ -420,6 +446,8 @@
               boxShadow: '4px 4px 0px #D4551A',
               border: '2px solid #D4551A',
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
+              width: isMobile ? '100%' : 'auto',
+              textAlign: 'center',
             }}
             onMouseOver={e => { e.currentTarget.style.transform = 'translate(-2px, -2px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #D4551A'; }}
             onMouseOut={e => { e.currentTarget.style.transform = 'translate(0,0)'; e.currentTarget.style.boxShadow = '4px 4px 0px #D4551A'; }}
@@ -428,7 +456,7 @@
             >
               ⬇ Download the Beta Version
             </a>
-            <a href="#" style={{
+            <a href="privacy.html" style={{
               color: 'rgba(255,255,255,0.55)',
               fontFamily: 'Georgia, serif',
               fontSize: 17,

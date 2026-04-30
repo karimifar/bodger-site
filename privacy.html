@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Bodger</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      background: oklch(40% 0.18 240);
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      color: rgba(255,255,255,0.85);
+      padding: 60px 24px 80px;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 15px;
+      margin-bottom: 48px;
+      transition: color 0.15s ease;
+    }
+    .back:hover { color: rgba(255,255,255,0.85); }
+    .back svg { flex-shrink: 0; }
+    h1 {
+      font-family: 'Georgia', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #E8742E;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .effective-date {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 32px;
+    }
+    .summary {
+      background: rgba(255,255,255,0.07);
+      border-left: 3px solid #D4551A;
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      font-family: 'Georgia', serif;
+      font-size: 17px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 40px;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin: 36px 0;
+    }
+    h2 {
+      font-family: 'Georgia', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    p {
+      font-family: 'Georgia', serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 16px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 16px;
+    }
+    ul li {
+      font-family: 'Georgia', serif;
+      font-size: 17px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.72);
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    ul li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: rgba(255,255,255,0.35);
+    }
+    .sub-item {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+    .sub-item-title {
+      font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 4px;
+    }
+    .sub-item p {
+      font-size: 15px;
+      margin-bottom: 0;
+    }
+    a {
+      color: #E8742E;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(232,116,46,0.35);
+    }
+    a:hover { border-bottom-color: #E8742E; }
+
+    @media (max-width: 480px) {
+      body { padding: 36px 20px 60px; }
+      .back {
+        font-size: 16px;
+        min-height: 44px;
+        margin-bottom: 32px;
+      }
+      h1 { font-size: 28px; }
+      h2 { font-size: 18px; }
+      p, ul li { font-size: 16px; }
+      .summary { font-size: 16px; padding: 14px 16px; margin-bottom: 28px; }
+      hr { margin: 28px 0; }
+      .sub-item { padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <a href="index.html" class="back">
+      <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+        <path d="M6 1L1 6l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+
+    <h1>Privacy Policy</h1>
+    <div class="effective-date">Effective date: April 29, 2026</div>
+
+    <div class="summary">
+      The short version: Bodger does not collect, store, or sell your personal data. Messages you process are sent to Anthropic's API to generate responses and are not stored by us. Any history you choose to save stays on your device.
+    </div>
+
+    <h2>What bodger does</h2>
+    <p>bodger is an iOS app that helps you soften reactive messages before sending them and decode hurtful messages you receive from others. It uses AI to reframe texts to be constructive, relational, and respectful.</p>
+
+    <hr>
+
+    <h2>Information we collect</h2>
+    <p>Bodger does not require an account and does not collect personal information such as your name, email address, or phone number.</p>
+    <p>The only information the app handles is:</p>
+
+    <div class="sub-item">
+      <div class="sub-item-title">Message text you enter</div>
+      <p>When you type or paste a message and tap Soften or Decode, that text is sent to Anthropic's API to generate a response. It is transmitted securely over HTTPS. We do not store this text on any server.</p>
+    </div>
+
+    <div class="sub-item" style="margin-top: 8px;">
+      <div class="sub-item-title">Text history (optional, local only)</div>
+      <p>If you turn on "Save text history" in the app, processed messages are saved locally on your device using iOS secure storage. This data never leaves your device and is not accessible to us. You can view, and permanently delete, your history at any time inside the app.</p>
+    </div>
+
+    <hr>
+
+    <h2>Third-party services</h2>
+    <p>Bodger uses Anthropic's API to process messages. When you use the app, your message text is sent to Anthropic's servers to generate a response. Anthropic's handling of this data is governed by their own privacy policy and terms of service, available at <a href="https://anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.</p>
+    <p>Bodger does not use any advertising networks, analytics services, or other third-party data processors.</p>
+
+    <hr>
+
+    <h2>Data we do not collect</h2>
+    <ul>
+      <li>We do not collect usage analytics or crash data</li>
+      <li>We do not use advertising identifiers</li>
+      <li>We do not share any data with third parties beyond Anthropic (for API processing)</li>
+      <li>We do not retain copies of messages you process</li>
+      <li>We do not collect location data</li>
+      <li>We do not access your contacts or messages</li>
+    </ul>
+
+    <hr>
+
+    <h2>iMessage extension</h2>
+    <p>Bodger includes an optional iMessage extension. It operates under the same privacy principles as the main app: text you process through the extension is sent to Anthropic's API and is not stored by us. Any locally saved history is shared between the extension and the main app via iOS's secure App Group storage, which remains on your device.</p>
+
+    <hr>
+
+    <h2>Children's privacy</h2>
+    <p>Bodger is not directed at children under 13. We do not knowingly collect information from children under 13.</p>
+
+    <hr>
+
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes materially, we'll update the effective date at the top of this page. We'll notify beta testers of significant changes via TestFlight.</p>
+
+    <hr>
+
+    <h2>Contact</h2>
+    <p>Questions about this privacy policy or anything else? Reach out at <a href="mailto:djopps@gmail.com">djopps@gmail.com</a>.</p>
+
+  </div>
+</body>
+</html>
