@@ -4,494 +4,430 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bodger</title>
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-  <script type="text/babel" src="ios-frame.jsx"></script>
+  <link rel="icon" type="image/png" href="favicon.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
+    html, body { min-height: 100%; }
     body {
       background: oklch(40% 0.18 240);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-    }
-    #root {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
-      min-height: 100vh;
     }
-    .def-block {
-      color: rgba(255,255,255,0.92);
-      max-width: 340px;
+
+    .layout {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 64px;
+      padding: 40px 48px;
+      margin-left: -60px;
     }
-    .def-headword {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: #fff;
-      font-family: 'Georgia', serif;
+
+    /* ── Definition block ── */
+    .def-block { color: rgba(255,255,255,0.92); max-width: 340px; }
+    .def-headword { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: #E8742E; font-family: Georgia, serif; }
+    .def-pron { font-size: 14px; color: rgba(255,255,255,0.55); font-family: Georgia, serif; font-style: italic; margin-left: 6px; }
+    .def-pos { font-size: 12px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+    .def-text { font-size: 19px; line-height: 1.4; color: rgba(255,255,255,0.75); font-family: Georgia, serif; margin-top: 6px; text-wrap: pretty; }
+
+    /* ── Phone outer shell ── */
+    .phone-outer {
+      position: relative;
+      background: linear-gradient(160deg, #2a2a2a 0%, #111 50%, #1e1e1e 100%);
+      border-radius: 52px;
+      padding: 12px;
+      box-shadow: 0 0 0 1px #444, 0 0 0 2px #1a1a1a,
+        0 50px 100px rgba(0,0,0,0.5), 0 20px 40px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      flex-shrink: 0;
     }
-    .def-pron {
-      font-size: 14px;
-      color: rgba(255,255,255,0.55);
-      font-family: 'Georgia', serif;
-      font-style: italic;
-      margin-left: 6px;
+    .btn { position: absolute; background: #333; }
+    .btn-l1 { left: -3px; top: 100px; width: 3px; height: 36px; border-radius: 2px 0 0 2px; }
+    .btn-l2 { left: -3px; top: 150px; width: 3px; height: 56px; border-radius: 2px 0 0 2px; }
+    .btn-l3 { left: -3px; top: 220px; width: 3px; height: 56px; border-radius: 2px 0 0 2px; }
+    .btn-r  { right: -3px; top: 160px; width: 3px; height: 80px; border-radius: 0 2px 2px 0; }
+
+    /* ── Phone screen ── */
+    .phone-screen {
+      width: 296px; height: 641px;
+      border-radius: 48px; overflow: hidden;
+      position: relative; background: #F2F2F7;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12);
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column;
     }
-    .def-pos {
-      font-size: 12px;
-      color: rgba(255,255,255,0.45);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-top: 2px;
+    .dynamic-island {
+      position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+      width: 126px; height: 37px; border-radius: 24px;
+      background: #000; z-index: 50; pointer-events: none;
+    }
+    .status-bar {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 21px 24px 0; pointer-events: none;
+    }
+    .status-time { font-weight: 590; font-size: 17px; line-height: 22px; color: #000; }
+    .status-icons { display: flex; align-items: center; gap: 7px; }
+
+    /* Scrollable content */
+    .app-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding-top: 62px; }
+    .app-content::-webkit-scrollbar { display: none; }
+
+    /* Home indicator */
+    .home-indicator {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 60;
+      height: 34px; display: flex; justify-content: center; align-items: flex-end;
+      padding-bottom: 8px; pointer-events: none;
+    }
+    .home-bar { width: 139px; height: 5px; border-radius: 100px; background: rgba(0,0,0,0.25); }
+
+    /* App content */
+    .app-header { padding: 16px 20px 8px; }
+    .app-header-row { display: flex; align-items: center; justify-content: space-between; }
+    .app-header-left { display: flex; align-items: center; gap: 8px; }
+    .app-name { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #D4551A; }
+    .ai-badge { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #555; }
+    .ai-dot { width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; }
+    .app-subtitle { font-size: 13px; color: #999; font-style: italic; margin-top: 4px; }
+
+    .tabs { padding: 0 20px 16px; }
+    .tabs-row { display: flex; background: #f2f2f7; border-radius: 12px; padding: 3px; }
+    .tab { flex: 1; text-align: center; padding: 8px 0; border-radius: 10px; font-size: 14px; }
+    .tab-active { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.12); font-weight: 600; border: 1.5px solid #E8845A; }
+    .tab-inactive { font-weight: 400; color: #888; }
+
+    .input-area { padding: 0 20px 12px; }
+    .input-label { font-size: 14px; color: #aaa; margin-bottom: 8px; }
+    .input-box { background: #f2f2f7; border-radius: 14px; padding: 14px 14px 32px; position: relative; min-height: 90px; }
+    .input-text { font-size: 18px; font-weight: 500; color: #1a1a1a; line-height: 1.4; min-height: 52px; }
+    .text-cursor {
+      display: inline-block; border-right: 2px solid #1a1a1a;
+      margin-left: 1px; height: 1.2em; vertical-align: text-bottom;
+      transition: opacity 0.2s;
+    }
+
+    .soften-wrap { padding: 0 20px 16px; position: relative; }
+    .soften-btn {
+      background: linear-gradient(135deg, #F5A623 0%, #D4551A 100%);
+      border-radius: 14px; padding: 16px; text-align: center; color: #fff;
+      font-size: 18px; font-weight: 600; letter-spacing: 0.2px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s ease, background 0.3s ease;
+    }
+    .soften-btn.clicking { transform: scale(0.96); }
+    .soften-btn.working { background: linear-gradient(135deg, #c88a1a 0%, #a83d12 100%); }
+
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .mouse-cursor {
+      position: absolute; bottom: 22px; right: 52px;
+      pointer-events: none; opacity: 0;
+      transform: translate(30px, 20px);
+      transition: opacity 0.4s ease, transform 0.5s ease;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+    .mouse-cursor.in {
+      opacity: 1; transform: translate(0, 0);
+      animation: cursorBob 2.4s ease-in-out infinite;
+    }
+
+    .result-card {
+      padding: 0 20px 16px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .result-card.show { opacity: 1; transform: translateY(0); }
+    .result-inner { background: #f2f2f7; border-radius: 14px; padding: 14px; }
+
+    .history-card {
+      margin: 0 20px 24px; background: #f2f2f7;
+      border-radius: 14px; padding: 14px 16px;
+      opacity: 0; transition: opacity 0.5s ease 0.2s;
+    }
+    .history-card.show { opacity: 1; }
+
+    /* ── CTA ── */
+    .cta { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px; }
+    .badge-wrap { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+    .badge-wrap img { height: 56px; display: block; }
+    .coming-soon { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; margin-bottom: 4px; }
+    .beta-btn {
+      display: block;
+      background: #fff; color: #1a0a00;
       font-family: -apple-system, 'Helvetica Neue', sans-serif;
+      font-size: 16px; font-weight: 700;
+      padding: 15px 32px; border-radius: 12px; text-align: center;
+      text-decoration: none; letter-spacing: 0.2px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
-    .def-text {
-      font-size: 19px;
-      line-height: 1.4;
-      color: rgba(255,255,255,0.75);
-      font-family: 'Georgia', serif;
-      margin-top: 6px;
-      text-wrap: pretty;
-    }
-    .def-num {
-      font-weight: 700;
-      color: rgba(255,255,255,0.5);
-      margin-right: 4px;
-    }
-    .def-divider {
-      border: none;
-      border-top: 1px solid rgba(255,255,255,0.12);
-      margin: 20px 0;
-    }
-    @media (max-width: 1100px) {
-      body { align-items: flex-start; }
-      #root { align-items: flex-start; justify-content: flex-start; }
-    }
-    @media (min-width: 641px) and (max-width: 1100px) {
-      .def-block { max-width: 480px; }
-    }
-    @media (max-width: 640px) {
-      .def-block { max-width: 100%; text-align: left; }
-      .def-pron { display: block; margin-left: 0; margin-top: 2px; }
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    function CursorIcon() {
-      return (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"
-          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }}>
-          <path d="M5 2L23 13.5L13.5 15.5L9 24L5 2Z" fill="white" stroke="#222" strokeWidth="1.2" strokeLinejoin="round"/>
-        </svg>
-      );
+    .beta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.22); }
+    .beta-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .privacy-link {
+      color: rgba(255,255,255,0.4); font-family: Georgia, serif;
+      font-size: 13px; text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.18); padding-bottom: 2px;
     }
 
-    function AppScreen() {
-      const fullText = "i hate you so much. u suck.";
-      const [displayed, setDisplayed] = React.useState("");
-      const [showCursor, setShowCursor] = React.useState(false);
-      const [cursorIn, setCursorIn] = React.useState(false);
-      const [clicking, setClicking] = React.useState(false);
-      const [working, setWorking] = React.useState(false);
-      const [showResult, setShowResult] = React.useState(false);
-      const [scrolled, setScrolled] = React.useState(false);
-      const scrollRef = React.useRef(null);
-
-      React.useEffect(() => {
-        let i = 0;
-        let loopTimeout;
-
-        function startLoop() {
-          i = 0;
-          setDisplayed("");
-          setShowCursor(false);
-          setCursorIn(false);
-          setClicking(false);
-          setWorking(false);
-          setShowResult(false);
-          setScrolled(false);
-          if (scrollRef.current) scrollRef.current.scrollTop = 0;
-
-          const typeInterval = setInterval(() => {
-            i++;
-            setDisplayed(fullText.slice(0, i));
-            if (i >= fullText.length) {
-              clearInterval(typeInterval);
-              setTimeout(() => {
-                setShowCursor(true);
-                setTimeout(() => setCursorIn(true), 100);
-                // hover pause, then click
-                setTimeout(() => {
-                  setClicking(true);
-                  setTimeout(() => {
-                    setClicking(false);
-                    setWorking(true);
-                    setTimeout(() => {
-                      setShowResult(true);
-                      // scroll down after result appears
-                      setTimeout(() => {
-                        setScrolled(true);
-                        if (scrollRef.current) {
-                          scrollRef.current.scrollTo({ top: 320, behavior: 'smooth' });
-                        }
-                        // hold, then restart
-                        loopTimeout = setTimeout(() => startLoop(), 6000);
-                      }, 800);
-                    }, 1200);
-                  }, 300);
-                }, 1400);
-              }, 600);
-            }
-          }, 60);
-        }
-
-        startLoop();
-        return () => { clearTimeout(loopTimeout); };
-      }, []);
-
-      return (
-        <div style={{
-          width: '100%',
-          height: '100%',
-          background: '#fff',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
-          position: 'relative',
-        }} ref={scrollRef}>
-          {/* Header */}
-          <div style={{ padding: '16px 20px 8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, color: '#D4551A' }}>bodger</span>
-                <span style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  fontSize: 12, color: '#555', fontWeight: 400
-                }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4CAF50', display: 'inline-block' }}></span>
-                  AI active
-                </span>
-              </div>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.8">
-                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-            </div>
-            <p style={{ fontSize: 13, color: '#999', fontStyle: 'italic', marginTop: 4 }}>
-              Soften reactive messages before you send them
-            </p>
-          </div>
-
-          {/* Tabs */}
-          <div style={{ padding: '0 20px 16px' }}>
-            <div style={{
-              display: 'flex', background: '#f2f2f7', borderRadius: 12, padding: 3
-            }}>
-              <div style={{
-                flex: 1, textAlign: 'center', padding: '8px 0', borderRadius: 10,
-                background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-                fontSize: 14, fontWeight: 600,
-                border: '1.5px solid #E8845A'
-              }}>My message</div>
-              <div style={{
-                flex: 1, textAlign: 'center', padding: '8px 0',
-                fontSize: 14, fontWeight: 400, color: '#888'
-              }}>Their message</div>
-            </div>
-          </div>
-
-          {/* Input area */}
-          <div style={{ padding: '0 20px 12px' }}>
-            <p style={{ fontSize: 14, color: '#aaa', marginBottom: 8 }}>What were you about to send?</p>
-            <div style={{
-              background: '#f2f2f7', borderRadius: 14, padding: '14px 14px 32px',
-              position: 'relative', minHeight: 90
-            }}>
-              <p style={{ fontSize: 18, fontWeight: 500, color: '#1a1a1a', lineHeight: 1.4, minHeight: 52 }}>
-                {displayed}<span style={{ opacity: displayed.length < fullText.length ? 1 : 0, borderRight: '2px solid #1a1a1a', marginLeft: 1, transition: 'opacity 0.2s' }}>&nbsp;</span>
-              </p>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.8"
-                style={{ position: 'absolute', bottom: 10, right: 12 }}>
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-              </svg>
-            </div>
-          </div>
-
-          {/* Soften button — with cursor overlay */}
-          <div style={{ padding: '0 20px 16px', position: 'relative' }}>
-            <div style={{
-              background: working ? 'linear-gradient(135deg, #c88a1a 0%, #a83d12 100%)' : 'linear-gradient(135deg, #F5A623 0%, #D4551A 100%)',
-              borderRadius: 14, padding: '16px', textAlign: 'center',
-              color: '#fff', fontSize: 18, fontWeight: 600,
-              letterSpacing: 0.2,
-              transform: clicking ? 'scale(0.96)' : 'scale(1)',
-              transition: 'transform 0.15s ease, background 0.3s ease',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            }}>
-              {working ? (
-                <>
-                  <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-                  Working…
-                </>
-              ) : 'Soften'}
-            </div>
-            {/* Cursor hovering over button */}
-            {showCursor && (
-              <div style={{
-                position: 'absolute',
-                bottom: 22,
-                right: 52,
-                pointerEvents: 'none',
-                opacity: cursorIn ? 1 : 0,
-                transform: cursorIn ? 'translate(0, 0)' : 'translate(30px, 20px)',
-                transition: 'opacity 0.4s ease, transform 0.5s ease',
-                animation: cursorIn ? 'cursorBob 2.4s ease-in-out infinite' : 'none',
-              }}>
-                <CursorIcon />
-              </div>
-            )}
-          </div>
-
-          {/* Result card */}
-          <div style={{ padding: '0 20px 16px', opacity: showResult ? 1 : 0, transform: showResult ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.5s ease, transform 0.5s ease' }}>
-            <div style={{
-              background: '#f2f2f7', borderRadius: 14, padding: '14px 14px 14px',
-              position: 'relative'
-            }}>
-              {/* Send actions */}
-              <div style={{ marginBottom: 12 }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #F5A623 0%, #D4551A 100%)',
-                  borderRadius: 12, padding: '13px', textAlign: 'center',
-                  color: '#fff', fontSize: 15, fontWeight: 600,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                  marginBottom: 8
-                }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                  Send in Messages
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <div style={{
-                    flex: 1, background: '#ede8e3', borderRadius: 12, padding: '11px',
-                    textAlign: 'center', fontSize: 14, fontWeight: 500, color: '#c0522a',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-                  }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0522a" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    Copy
-                  </div>
-                  <div style={{
-                    flex: 1, background: 'transparent', borderRadius: 12, padding: '11px',
-                    textAlign: 'center', fontSize: 14, color: '#888',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-                  }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.86"/></svg>
-                    Try another
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center', fontSize: 13, color: '#bbb', marginTop: 6 }}>Start over</div>
-              </div>
-
-              {/* Softened message */}
-              <p style={{ fontSize: 15, color: '#1a1a1a', lineHeight: 1.55, paddingRight: 20 }}>
-                I'm starting to feel a bit too flooded to have a constructive conversation. Can we pause for 20 minutes and then try to pick up the conversation again?
-              </p>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.8"
-                style={{ position: 'absolute', bottom: 10, right: 12 }}>
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-              </svg>
-              <div style={{
-                background: '#1E3A6E', borderRadius: 12, padding: '12px',
-                textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 600,
-                marginTop: 12
-              }}>
-                Request a pause
-              </div>
-              <div style={{ marginTop: 12 }}>
-                <p style={{ fontSize: 12, color: '#aaa', marginBottom: 6 }}>Set a reminder</p>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  {['20 min', '30 min', '45 min', '60 min'].map((t, i) => (
-                    <div key={t} style={{
-                      padding: '5px 10px', borderRadius: 20, fontSize: 12,
-                      background: i === 0 ? '#d0d8ec' : '#f2f2f7',
-                      color: i === 0 ? '#1E3A6E' : '#888',
-                      fontWeight: i === 0 ? 600 : 400
-                    }}>{t}</div>
-                  ))}
-                </div>
-                <div style={{
-                  background: '#e8ecf5', borderRadius: 12, padding: '11px',
-                  textAlign: 'center', fontSize: 14, color: '#1E3A6E', fontWeight: 500,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-                }}>
-                  <span>🔔</span> Remind me in 20 min
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Save text history */}
-          <div style={{
-            margin: '0 20px 24px',
-            background: '#f2f2f7', borderRadius: 14, padding: '14px 16px',
-            opacity: showResult ? 1 : 0, transition: 'opacity 0.5s ease 0.2s'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>Save text history for analysis</p>
-                <p style={{ fontSize: 12, color: '#aaa', lineHeight: 1.4 }}>Privately logs messages you process — only stored on this device.</p>
-              </div>
-              <div style={{
-                width: 44, height: 26, borderRadius: 13,
-                background: '#ddd', flexShrink: 0, marginTop: 2,
-                position: 'relative'
-              }}>
-                <div style={{
-                  position: 'absolute', top: 3, left: 3,
-                  width: 20, height: 20, borderRadius: '50%',
-                  background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function useLayout() {
-      const get = () => window.innerWidth <= 640 ? 'mobile' : window.innerWidth <= 1100 ? 'tablet' : 'desktop';
-      const [layout, setLayout] = React.useState(get);
-      React.useEffect(() => {
-        const handler = () => setLayout(get());
-        window.addEventListener('resize', handler);
-        return () => window.removeEventListener('resize', handler);
-      }, []);
-      return layout;
-    }
-
-    function App() {
-      const layout = useLayout();
-      const isMobile = layout === 'mobile';
-      const isDesktop = layout === 'desktop';
-      return (
-        <div style={{
-          display: 'flex',
-          flexDirection: isDesktop ? 'row' : 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: isMobile ? 36 : isDesktop ? 64 : 48,
-          padding: isMobile ? '40px 24px 56px' : isDesktop ? '40px 48px' : '48px 60px 64px',
-          flexWrap: 'wrap',
-          marginLeft: isDesktop ? '-60px' : 0,
-        }}>
-
-          {/* Definitions */}
-          <div className="def-block">
-            <div>
-              <span className="def-headword" style={{ color: '#E8742E' }}>bodg·er</span>
-              <span className="def-pron">/ ˈbɒdʒ ər /</span>
-              <div className="def-pos">noun</div>
-              <p className="def-text" style={{ marginTop: 10 }}>
-                A digital interface or software application designed to intercept and reframe "fexting" (text-based conflict) into constructive dialogue, or "connects-ting."
-              </p>
-              <div style={{ marginTop: 20 }}>
-                <div className="def-pos" style={{ marginBottom: 6 }}>Etymology</div>
-                <p className="def-text" style={{ color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', fontSize: 15, lineHeight: 1.55 }}>
-                  Derived from the archaic British term <em style={{ fontStyle: 'normal', color: 'rgba(255,255,255,0.75)' }}>bodger</em>—a highly skilled itinerant woodworker who turned unseasoned timber into functional chair legs using a pole lathe. In a modern context, the name suggests the "turning" of raw, "green" (reactive) emotion into considered, constructive outreach.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* iPhone with app */}
-          <div style={{
-            position: 'relative',
-            background: 'linear-gradient(160deg, #2a2a2a 0%, #111 50%, #1e1e1e 100%)',
-            borderRadius: 52,
-            padding: 12,
-            boxShadow: `
-              0 0 0 1px #444,
-              0 0 0 2px #1a1a1a,
-              0 50px 100px rgba(0,0,0,0.5),
-              0 20px 40px rgba(0,0,0,0.3),
-              inset 0 1px 0 rgba(255,255,255,0.08)
-            `,
-          }}>
-            <div style={{ position: 'absolute', left: -3, top: 100, width: 3, height: 36, background: '#333', borderRadius: '2px 0 0 2px' }} />
-            <div style={{ position: 'absolute', left: -3, top: 150, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
-            <div style={{ position: 'absolute', left: -3, top: 220, width: 3, height: 56, background: '#333', borderRadius: '2px 0 0 2px' }} />
-            <div style={{ position: 'absolute', right: -3, top: 160, width: 3, height: 80, background: '#333', borderRadius: '0 2px 2px 0' }} />
-            <IOSDevice width={isMobile ? 268 : 296} height={isMobile ? 580 : 641} dark={false} title="" >
-              <AppScreen />
-            </IOSDevice>
-          </div>
-
-          {/* CTA */}
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginTop: 8,
-            width: !isDesktop ? '100%' : 'auto',
-          }}>
-            <a href="#" style={{
-              display: 'block',
-              background: '#fff',
-              color: '#1a0a00',
-              fontFamily: '-apple-system, "Helvetica Neue", sans-serif',
-              fontSize: isMobile ? 16 : 19,
-              fontWeight: 800,
-              padding: isMobile ? '16px 24px' : '18px 42px',
-              borderRadius: 6,
-              textDecoration: 'none',
-              letterSpacing: 0.5,
-              textTransform: 'uppercase',
-              boxShadow: '4px 4px 0px #D4551A',
-              border: '2px solid #D4551A',
-              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
-              width: isMobile ? '100%' : 'auto',
-              textAlign: 'center',
-            }}
-            onMouseOver={e => { e.currentTarget.style.transform = 'translate(-2px, -2px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #D4551A'; }}
-            onMouseOut={e => { e.currentTarget.style.transform = 'translate(0,0)'; e.currentTarget.style.boxShadow = '4px 4px 0px #D4551A'; }}
-            onMouseDown={e => { e.currentTarget.style.transform = 'translate(4px, 4px)'; e.currentTarget.style.boxShadow = '0px 0px 0px #D4551A'; }}
-            onMouseUp={e => { e.currentTarget.style.transform = 'translate(-2px, -2px)'; e.currentTarget.style.boxShadow = '6px 6px 0px #D4551A'; }}
-            >
-              ⬇ Download the Beta Version
-            </a>
-            <a href="privacy.html" style={{
-              color: 'rgba(255,255,255,0.55)',
-              fontFamily: 'Georgia, serif',
-              fontSize: 17,
-              fontStyle: 'normal',
-              textDecoration: 'none',
-              borderBottom: '1px solid rgba(255,255,255,0.25)',
-              paddingBottom: 2,
-            }}>
-              Read our (very serious) privacy policy
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
-
-  <style>
     @keyframes cursorBob {
       0%, 100% { transform: translate(0, 0); }
       50% { transform: translate(-2px, -4px); }
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 1100px) {
+      body { align-items: flex-start; }
+      .layout { flex-direction: column; align-items: center; margin-left: 0; gap: 48px; padding: 48px 60px 64px; }
+      .def-block { max-width: 480px; }
+      .cta { width: 100%; }
+    }
+    @media (max-width: 640px) {
+      .layout { gap: 36px; padding: 40px 24px 56px; }
+      .def-block { max-width: 100%; }
+      .def-pron { display: block; margin-left: 0; margin-top: 2px; }
+      .phone-screen { width: 268px; height: 580px; }
     }
   </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Definition -->
+  <div class="def-block">
+    <span class="def-headword">bodg·er</span>
+    <span class="def-pron">/ ˈbɒdʒ ər /</span>
+    <div class="def-pos">noun</div>
+    <p class="def-text" style="margin-top:10px">
+      A digital interface or software application designed to intercept and reframe "fexting" (text-based conflict) into constructive dialogue, or "connects-ting."
+    </p>
+    <div style="margin-top:20px">
+      <div class="def-pos" style="margin-bottom:6px">Etymology</div>
+      <p class="def-text" style="color:rgba(255,255,255,0.55);font-style:italic;font-size:15px;line-height:1.55">
+        Derived from the archaic British term <em style="font-style:normal;color:rgba(255,255,255,0.75)">bodger</em>—a highly skilled itinerant woodworker who turned unseasoned timber into functional chair legs using a pole lathe. In a modern context, the name suggests the "turning" of raw, "green" (reactive) emotion into considered, constructive outreach.
+      </p>
+    </div>
+  </div>
+
+  <!-- iPhone -->
+  <div class="phone-outer">
+    <div class="btn btn-l1"></div>
+    <div class="btn btn-l2"></div>
+    <div class="btn btn-l3"></div>
+    <div class="btn btn-r"></div>
+
+    <div class="phone-screen">
+      <div class="dynamic-island"></div>
+
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg width="19" height="12" viewBox="0 0 19 12">
+            <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#000"/>
+            <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#000"/>
+            <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#000"/>
+            <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#000"/>
+          </svg>
+          <svg width="17" height="12" viewBox="0 0 17 12">
+            <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill="#000"/>
+            <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill="#000"/>
+            <circle cx="8.5" cy="10.5" r="1.5" fill="#000"/>
+          </svg>
+          <svg width="27" height="13" viewBox="0 0 27 13">
+            <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#000" stroke-opacity="0.35" fill="none"/>
+            <rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/>
+            <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill="#000" fill-opacity="0.4"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="app-content" id="app-content">
+
+        <div class="app-header">
+          <div class="app-header-row">
+            <div class="app-header-left">
+              <span class="app-name">bodger</span>
+              <span class="ai-badge"><span class="ai-dot"></span>AI active</span>
+            </div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8">
+              <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <p class="app-subtitle">Soften reactive messages before you send them</p>
+        </div>
+
+        <div class="tabs">
+          <div class="tabs-row">
+            <div class="tab tab-active">My message</div>
+            <div class="tab tab-inactive">Their message</div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <p class="input-label">What were you about to send?</p>
+          <div class="input-box">
+            <p class="input-text"><span id="typed-text"></span><span class="text-cursor" id="text-cursor">&nbsp;</span></p>
+            <svg style="position:absolute;bottom:10px;right:12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="soften-wrap">
+          <div class="soften-btn" id="soften-btn">
+            <span id="soften-label">Soften</span>
+          </div>
+          <div class="mouse-cursor" id="mouse-cursor">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M5 2L23 13.5L13.5 15.5L9 24L5 2Z" fill="white" stroke="#222" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="result-card" id="result-card">
+          <div class="result-inner">
+            <div style="margin-bottom:12px">
+              <div style="background:linear-gradient(135deg,#F5A623 0%,#D4551A 100%);border-radius:12px;padding:13px;text-align:center;color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                Send in Messages
+              </div>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;background:#ede8e3;border-radius:12px;padding:11px;text-align:center;font-size:14px;font-weight:500;color:#c0522a;display:flex;align-items:center;justify-content:center;gap:6px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0522a" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy
+                </div>
+                <div style="flex:1;background:transparent;border-radius:12px;padding:11px;text-align:center;font-size:14px;color:#888;display:flex;align-items:center;justify-content:center;gap:6px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.86"/></svg>
+                  Try another
+                </div>
+              </div>
+              <div style="text-align:center;font-size:13px;color:#bbb;margin-top:6px">Start over</div>
+            </div>
+
+            <p style="font-size:15px;color:#1a1a1a;line-height:1.55;padding-right:20px;position:relative">
+              I'm starting to feel a bit too flooded to have a constructive conversation. Can we pause for 20 minutes and then try to pick up the conversation again?
+              <svg style="position:absolute;bottom:-20px;right:-8px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+            </p>
+
+            <div style="background:#1E3A6E;border-radius:12px;padding:12px;text-align:center;color:#fff;font-size:15px;font-weight:600;margin-top:12px">
+              Request a pause
+            </div>
+
+            <div style="margin-top:12px">
+              <p style="font-size:12px;color:#aaa;margin-bottom:6px">Set a reminder</p>
+              <div style="display:flex;gap:8px;margin-bottom:8px">
+                <div style="padding:5px 10px;border-radius:20px;font-size:12px;background:#d0d8ec;color:#1E3A6E;font-weight:600">20 min</div>
+                <div style="padding:5px 10px;border-radius:20px;font-size:12px;background:#f2f2f7;color:#888">30 min</div>
+                <div style="padding:5px 10px;border-radius:20px;font-size:12px;background:#f2f2f7;color:#888">45 min</div>
+                <div style="padding:5px 10px;border-radius:20px;font-size:12px;background:#f2f2f7;color:#888">60 min</div>
+              </div>
+              <div style="background:#e8ecf5;border-radius:12px;padding:11px;text-align:center;font-size:14px;color:#1E3A6E;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px">
+                🔔 Remind me in 20 min
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-card" id="history-card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+            <div>
+              <p style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:2px">Save text history for analysis</p>
+              <p style="font-size:12px;color:#aaa;line-height:1.4">Privately logs messages you process — only stored on this device.</p>
+            </div>
+            <div style="width:44px;height:26px;border-radius:13px;background:#ddd;flex-shrink:0;margin-top:2px;position:relative">
+              <div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end app-content -->
+
+      <div class="home-indicator"><div class="home-bar"></div></div>
+    </div><!-- end phone-screen -->
+  </div><!-- end phone-outer -->
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="badge-wrap">
+      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+    </div>
+    <span class="coming-soon">Coming soon</span>
+    <a href="mailto:djopps@gmail.com?subject=Bodger%20Beta%20Request" class="beta-btn">Request beta access</a>
+    <a href="privacy.html" class="privacy-link">Read our (very serious) privacy policy</a>
+  </div>
+
+</div><!-- end layout -->
+
+<script>
+  const fullText = "i hate you so much. u suck.";
+  const typedText = document.getElementById('typed-text');
+  const textCursor = document.getElementById('text-cursor');
+  const softenBtn = document.getElementById('soften-btn');
+  const softenLabel = document.getElementById('soften-label');
+  const mouseCursor = document.getElementById('mouse-cursor');
+  const resultCard = document.getElementById('result-card');
+  const historyCard = document.getElementById('history-card');
+  const appContent = document.getElementById('app-content');
+
+  let loopTimeout;
+
+  function startLoop() {
+    clearTimeout(loopTimeout);
+
+    typedText.textContent = '';
+    textCursor.style.opacity = '1';
+    softenBtn.className = 'soften-btn';
+    softenLabel.textContent = 'Soften';
+    mouseCursor.style.transition = 'none';
+    mouseCursor.className = 'mouse-cursor';
+    resultCard.className = 'result-card';
+    historyCard.className = 'history-card';
+    appContent.scrollTop = 0;
+
+    requestAnimationFrame(() => { mouseCursor.style.transition = ''; });
+
+    let i = 0;
+    const typeInterval = setInterval(() => {
+      i++;
+      typedText.textContent = fullText.slice(0, i);
+      if (i >= fullText.length) {
+        clearInterval(typeInterval);
+        textCursor.style.opacity = '0';
+        setTimeout(() => {
+          setTimeout(() => mouseCursor.classList.add('in'), 100);
+          setTimeout(() => {
+            softenBtn.classList.add('clicking');
+            setTimeout(() => {
+              softenBtn.classList.remove('clicking');
+              softenBtn.classList.add('working');
+              softenLabel.innerHTML = '<span class="spinner"></span> Working…';
+              setTimeout(() => {
+                softenBtn.classList.remove('working');
+                softenLabel.textContent = 'Soften';
+                resultCard.classList.add('show');
+                historyCard.classList.add('show');
+                setTimeout(() => {
+                  appContent.scrollTo({ top: 320, behavior: 'smooth' });
+                  loopTimeout = setTimeout(startLoop, 6000);
+                }, 800);
+              }, 1200);
+            }, 300);
+          }, 1500);
+        }, 600);
+      }
+    }, 60);
+  }
+
+  startLoop();
+</script>
 </body>
 </html>
