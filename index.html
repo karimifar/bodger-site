@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bodger</title>
+  <title>Temper</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -101,7 +101,7 @@
 
     .input-area { padding: 0 20px 12px; }
     .input-label { font-size: 14px; color: #aaa; margin-bottom: 8px; }
-    .input-box { background: #f2f2f7; border-radius: 14px; padding: 14px 14px 32px; position: relative; min-height: 90px; }
+    .input-box { background: #f2f2f7; border-radius: 14px; padding: 14px; position: relative; min-height: 90px; }
     .input-text { font-size: 18px; font-weight: 500; color: #1a1a1a; line-height: 1.4; min-height: 52px; }
     .text-cursor {
       display: inline-block; border-right: 2px solid #1a1a1a;
@@ -203,8 +203,8 @@
 
   <!-- Definition -->
   <div class="def-block">
-    <span class="def-headword">bodg·er</span>
-    <span class="def-pron">/ ˈbɒdʒ ər /</span>
+    <span class="def-headword">tem·per</span>
+    <span class="def-pron">/ ˈtem·pər /</span>
     <div class="def-pos">noun</div>
     <p class="def-text" style="margin-top:10px">
       A digital interface or software application designed to intercept and reframe "fexting" (text-based conflict) into constructive dialogue, or "connects-ting."
@@ -212,7 +212,7 @@
     <div style="margin-top:20px">
       <div class="def-pos" style="margin-bottom:6px">Etymology</div>
       <p class="def-text" style="color:rgba(255,255,255,0.55);font-style:italic;font-size:15px;line-height:1.55">
-        Derived from the archaic British term <em style="font-style:normal;color:rgba(255,255,255,0.75)">bodger</em>—a highly skilled itinerant woodworker who turned unseasoned timber into functional chair legs using a pole lathe. In a modern context, the name suggests the "turning" of raw, "green" (reactive) emotion into considered, constructive outreach.
+        From Old English <em style="font-style:normal;color:rgba(255,255,255,0.75)">temprian</em> and Latin <em style="font-style:normal;color:rgba(255,255,255,0.75)">temperare</em>—to mix in due proportion, to moderate. In metalworking, to temper steel is to heat it and cool it carefully, transforming brittleness into resilience. The name suggests the same process applied to emotion: bringing reactive heat under control to produce something stronger and more considered.
       </p>
     </div>
   </div>
@@ -254,7 +254,7 @@
         <div class="app-header">
           <div class="app-header-row">
             <div class="app-header-left">
-              <span class="app-name">bodger</span>
+              <span class="app-name">temper</span>
               <span class="ai-badge"><span class="ai-dot"></span>AI active</span>
             </div>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8">
@@ -276,15 +276,17 @@
           <p class="input-label">What were you about to send?</p>
           <div class="input-box">
             <p class="input-text"><span id="typed-text"></span><span class="text-cursor" id="text-cursor">&nbsp;</span></p>
-            <svg style="position:absolute;bottom:10px;right:12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8">
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-            </svg>
+            <div style="display:flex;justify-content:flex-end;padding-top:8px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+            </div>
           </div>
         </div>
 
         <div class="soften-wrap">
           <div class="soften-btn" id="soften-btn">
-            <span id="soften-label">Soften</span>
+            <span id="soften-label">Temper</span>
           </div>
           <div class="mouse-cursor" id="mouse-cursor">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -313,11 +315,8 @@
               <div style="text-align:center;font-size:13px;color:#bbb;margin-top:6px">Start over</div>
             </div>
 
-            <p style="font-size:15px;color:#1a1a1a;line-height:1.55;padding-right:20px;position:relative">
+            <p style="font-size:15px;color:#1a1a1a;line-height:1.55;padding-right:20px">
               I'm starting to feel a bit too flooded to have a constructive conversation. Can we pause for 20 minutes and then try to pick up the conversation again?
-              <svg style="position:absolute;bottom:-20px;right:-8px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.8">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-              </svg>
             </p>
 
             <div style="background:#1E3A6E;border-radius:12px;padding:12px;text-align:center;color:#fff;font-size:15px;font-weight:600;margin-top:12px">
@@ -388,7 +387,7 @@
     typedText.textContent = '';
     textCursor.style.opacity = '1';
     softenBtn.className = 'soften-btn';
-    softenLabel.textContent = 'Soften';
+    softenLabel.textContent = 'Temper';
     mouseCursor.style.transition = 'none';
     mouseCursor.className = 'mouse-cursor';
     resultCard.className = 'result-card';
@@ -411,10 +410,10 @@
             setTimeout(() => {
               softenBtn.classList.remove('clicking');
               softenBtn.classList.add('working');
-              softenLabel.innerHTML = '<span class="spinner"></span> Working…';
+              softenLabel.innerHTML = '<span class="spinner"></span> Tempering…';
               setTimeout(() => {
                 softenBtn.classList.remove('working');
-                softenLabel.textContent = 'Soften';
+                softenLabel.textContent = 'Temper';
                 resultCard.classList.add('show');
                 historyCard.classList.add('show');
                 setTimeout(() => {
