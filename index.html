@@ -11,7 +11,9 @@
     body {
       background: oklch(40% 0.18 240);
       font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-      min-height: 100vh;
+    }
+    .hero {
+      min-height: 82vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -23,7 +25,6 @@
       align-items: center;
       gap: 64px;
       padding: 40px 48px;
-      margin-left: -60px;
     }
 
     /* ── Definition block ── */
@@ -154,27 +155,63 @@
 
     /* ── CTA ── */
     .cta { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px; }
-    .badge-wrap { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
-    .badge-wrap img { height: 56px; display: block; }
-    .coming-soon { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; margin-bottom: 4px; }
-    .beta-btn {
-      display: block;
-      background: #fff;
-      color: #1a0a00;
-      font-family: Georgia, serif;
-      font-size: 17px; font-weight: 700; font-style: italic;
-      padding: 16px 36px; border-radius: 6px; text-align: center;
-      text-decoration: none; letter-spacing: 0.3px;
-      box-shadow: 4px 4px 0px #D4551A;
-      border: none;
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
-    }
-    .beta-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #D4551A; }
-    .beta-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #D4551A; }
+    .badge-link img { height: 56px; display: block; transition: opacity 0.15s ease; }
+    .badge-link:hover img { opacity: 0.85; }
     .privacy-link {
       color: rgba(255,255,255,0.4); font-family: Georgia, serif;
       font-size: 13px; text-decoration: none;
       border-bottom: 1px solid rgba(255,255,255,0.18); padding-bottom: 2px;
+    }
+
+    /* ── Creators section ── */
+    .creators-section {
+      width: 100%;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 64px 0 80px;
+      display: flex;
+      justify-content: center;
+    }
+    .creators-inner { padding: 0 48px; width: 100%; max-width: 1100px; }
+    .creators-heading {
+      font-family: Georgia, serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 40px;
+    }
+    .creators-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+    .creator-photo {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      margin-bottom: 16px;
+      border: 2px solid rgba(255,255,255,0.12);
+      display: block;
+    }
+    .creator-name {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #E8742E;
+      margin-bottom: 12px;
+    }
+    .creator-bio {
+      font-family: Georgia, serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.6);
+    }
+    @media (max-width: 640px) {
+      .creators-inner { padding: 0 24px; }
+      .creators-grid { grid-template-columns: 1fr; gap: 36px; }
     }
 
     @keyframes cursorBob {
@@ -185,8 +222,8 @@
 
     /* ── Responsive ── */
     @media (max-width: 1100px) {
-      body { align-items: flex-start; }
-      .layout { flex-direction: column; align-items: center; margin-left: 0; gap: 48px; padding: 48px 60px 64px; }
+      .hero { align-items: flex-start; }
+      .layout { flex-direction: column; align-items: center; gap: 48px; padding: 48px 60px 64px; }
       .def-block { max-width: 480px; }
       .cta { width: 100%; }
     }
@@ -199,6 +236,7 @@
   </style>
 </head>
 <body>
+<div class="hero">
 <div class="layout">
 
   <!-- Definition -->
@@ -358,15 +396,39 @@
 
   <!-- CTA -->
   <div class="cta">
-    <div class="badge-wrap">
+    <a href="https://apps.apple.com/us/app/temper-text-app/id6764410525" target="_blank" rel="noopener" class="badge-link">
       <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-    </div>
-    <span class="coming-soon">Coming soon</span>
-    <a href="https://testflight.apple.com/join/4FAtQYh7" class="beta-btn">Download beta version</a>
+    </a>
     <a href="privacy.html" class="privacy-link">Read our (very serious) privacy policy</a>
   </div>
 
 </div><!-- end layout -->
+</div><!-- end hero -->
+
+<!-- Creators -->
+<div class="creators-section">
+  <div class="creators-inner">
+    <div class="creators-heading">Creators</div>
+    <div class="creators-grid">
+
+      <div class="creator">
+        <img class="creator-photo" src="uploads/henley head shot.jpeg" alt="Daniel Oppenheimer">
+        <div class="creator-name">Daniel Oppenheimer</div>
+        <p class="creator-bio">Daniel Oppenheimer is a writer and podcaster whose features and reviews have appeared in the New York Times Magazine, Washington Post, Texas Monthly, and elsewhere. His story for The New York Times Magazine, "How I Learned that the Problem in My Marriage Was Me," was the story of the week on the Modern Love podcast. He and his wife, couples therapist Jessica Grogan, are co-authoring The Good Enough Marriage, a book on relationships and couples therapy forthcoming from Simon Element (U.S.) and Michael Joseph/Random House (U.K.). His first book, Exit Right: The People Who Left and Reshaped the American Century, was published in February 2016 by Simon &amp; Schuster. Far From Respectable: Dave Hickey and His Art was published in June 2021 by The University of Texas Press. He's the author and host of the Eminent Americans podcast and Substack newsletter.</p>
+      </div>
+
+      <div class="creator">
+        <img class="creator-photo" src="uploads/karimifar.jpg" alt="Em Karimifar">
+        <div class="creator-name">Em Karimifar</div>
+        <p class="creator-bio">
+Em Karimifar is an award-winning design technologist who works in the space where design and engineering meet, designing products and building them in code, with a particular interest in design systems, data visualization, and code as a creative medium. Born and raised in Iran, with a background in fine arts, he's drawn to art and design in service of social change. For the Woman, Life, Freedom movement, he curated an open-source collection of more than 350 artworks from artists around the world. His path into the field ran through architecture and graphic design before it reached software.
+
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script>
   const fullText = "i hate you so much. u suck.";
